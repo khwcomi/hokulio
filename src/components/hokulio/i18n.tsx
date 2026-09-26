@@ -121,6 +121,8 @@ export interface Dict {
     close: string;
     toastTitle: string;
     toastBody: string;
+    toastErrorTitle: string;
+    toastErrorBody: string;
   };
   footer: {
     tagline: string;
@@ -259,6 +261,8 @@ const en: Dict = {
     close: "Close",
     toastTitle: "Brief transmitted",
     toastBody: "A Lead Architect will contact you within 24 hours.",
+    toastErrorTitle: "Transmission failed",
+    toastErrorBody: "Something went wrong. Please try again, or email us directly.",
   },
   footer: {
     tagline: "Bespoke full-stack engineering & proprietary tech lab.",
@@ -395,6 +399,8 @@ const ja: Dict = {
     close: "閉じる",
     toastTitle: "ブリーフを送信しました",
     toastBody: "24時間以内にリードアーキテクトがご連絡します。",
+    toastErrorTitle: "送信に失敗しました",
+    toastErrorBody: "問題が発生しました。もう一度お試しいただくか、直接メールでお問い合わせください。",
   },
   footer: {
     tagline: "受託フルスタックエンジニアリング & 独自プロダクトラボ。",
@@ -531,6 +537,8 @@ const ko: Dict = {
     close: "닫기",
     toastTitle: "브리프 전송 완료",
     toastBody: "24시간 이내에 리드 아키텍트가 연락드립니다.",
+    toastErrorTitle: "전송에 실패했습니다",
+    toastErrorBody: "문제가 발생했습니다. 다시 시도하거나 직접 이메일로 연락해 주세요.",
   },
   footer: {
     tagline: "맞춤형 풀스택 엔지니어링 & 자체 프로덕트 랩.",
@@ -667,6 +675,8 @@ const zh: Dict = {
     close: "关闭",
     toastTitle: "简报已传输",
     toastBody: "首席架构师将在 24 小时内与你联系。",
+    toastErrorTitle: "传输失败",
+    toastErrorBody: "出现问题。请重试，或直接发送电子邮件与我们联系。",
   },
   footer: {
     tagline: "定制全栈工程 & 自有产品实验室。",
@@ -708,6 +718,11 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     } catch {}
     return () => cancelAnimationFrame(raf);
   }, []);
+
+  // keep <html lang> in sync for SEO / screen readers
+  useEffect(() => {
+    document.documentElement.lang = locale;
+  }, [locale]);
 
   const setLocale = useCallback((l: Locale) => {
     setLocaleState(l);

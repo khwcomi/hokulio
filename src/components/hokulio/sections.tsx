@@ -10,11 +10,8 @@ import {
   ArrowRight,
   Cloud,
   Github,
-  Linkedin,
   Mail,
-  ShieldCheck,
   Sparkles,
-  Twitter,
 } from "lucide-react";
 
 /* ── Metric strip ─────────────────────────────────────────── */
@@ -182,15 +179,26 @@ export function Footer() {
   const cols = [
     {
       title: t.footer.products,
-      links: ["CandleQ", "TourPass", "Algo Engines", "Cloud Templates"],
+      links: [
+        { label: "CandleQ", href: "#fintech", icon: Activity },
+        { label: "TourPass", href: "#traveltech", icon: Sparkles },
+        { label: "Algo Engines", href: "#fintech", icon: Activity },
+        { label: "Cloud Templates", href: "#cloud", icon: Cloud },
+      ],
     },
     {
       title: t.footer.company,
-      links: [t.nav.philosophy, t.nav.contact, "Careers", "Security"],
+      links: [
+        { label: t.nav.philosophy, href: "#philosophy" },
+        { label: t.nav.contact, href: "#contact" },
+      ],
     },
     {
       title: t.footer.connect,
-      links: ["GitHub", "X / Twitter", "LinkedIn", t.contact.email],
+      links: [
+        { label: "GitHub", href: "https://github.com/khwcomi", icon: Github },
+        { label: t.contact.email, href: `mailto:${t.contact.email}`, icon: Mail },
+      ],
     },
   ];
 
@@ -225,28 +233,16 @@ export function Footer() {
               </h4>
               <ul className="mt-4 flex flex-col gap-2.5">
                 {col.links.map((l) => (
-                  <li key={l}>
+                  <li key={l.label}>
                     <a
-                      href={
-                        l === t.nav.philosophy
-                          ? "#philosophy"
-                          : l === t.nav.contact
-                            ? "#contact"
-                            : l.includes("@")
-                              ? `mailto:${l}`
-                              : "#top"
-                      }
+                      href={l.href}
+                      {...(l.href.startsWith("http")
+                        ? { target: "_blank", rel: "noopener noreferrer" }
+                        : {})}
                       className="inline-flex items-center gap-1.5 text-[13px] text-zinc-400 transition-colors hover:text-white"
                     >
-                      {l === "GitHub" && <Github className="h-3.5 w-3.5" />}
-                      {l === "X / Twitter" && <Twitter className="h-3.5 w-3.5" />}
-                      {l === "LinkedIn" && <Linkedin className="h-3.5 w-3.5" />}
-                      {l.includes("@") && <Mail className="h-3.5 w-3.5" />}
-                      {l === "CandleQ" && <Activity className="h-3.5 w-3.5" />}
-                      {l === "TourPass" && <Sparkles className="h-3.5 w-3.5" />}
-                      {l === "Cloud Templates" && <Cloud className="h-3.5 w-3.5" />}
-                      {l === "Security" && <ShieldCheck className="h-3.5 w-3.5" />}
-                      {l}
+                      {l.icon && <l.icon className="h-3.5 w-3.5" />}
+                      {l.label}
                     </a>
                   </li>
                 ))}

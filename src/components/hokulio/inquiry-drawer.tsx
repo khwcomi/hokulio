@@ -26,6 +26,7 @@ import {
   Smartphone,
   TerminalSquare,
   Loader2,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -39,6 +40,9 @@ const Ctx = createContext<InquiryCtx>({ open: () => {} });
 export const useInquiry = () => useContext(Ctx);
 
 const TYPE_ICONS = [Bot, Map, CloudCog, Smartphone];
+
+// Formsubmit.co 무료 폼 백엔드 — 첫 제출 후 수신자 메일함의 활성화 링크 클릭 필요
+const FORM_ENDPOINT = "https://formsubmit.co/ajax/khwcomi@gmail.com";
 
 export function InquiryDrawerProvider({ children }: { children: React.ReactNode }) {
   const [openState, setOpenState] = useState(false);
@@ -67,18 +71,44 @@ export function InquiryDrawerProvider({ children }: { children: React.ReactNode 
 
   const valid = name.trim().length > 1 && /.+@.+\..+/.test(email);
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!valid || phase !== "form") return;
     setPhase("sending");
-    // Simulated transmission — replaced by real API integration in production
-    window.setTimeout(() => {
+    const payload = {
+      _subject: `Hokulio ${t.drawer.title} — ${t.drawer.types[typeIdx]}`,
+      _template: "table",
+      _captcha: "false",
+      _replyto: email.trim(),
+      [t.drawer.projectType]: t.drawer.types[typeIdx],
+      [t.drawer.name]: name.trim(),
+      [t.drawer.email]: email.trim(),
+      [t.drawer.budget]: t.drawer.budgets[budgetIdx],
+      [t.drawer.details]: details.trim() || "-",
+    };
+    try {
+      const ctrl = new AbortController();
+      const timer = window.setTimeout(() => ctrl.abort(), 15000);
+      const res = await fetch(FORM_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify(payload),
+        signal: ctrl.signal,
+      });
+      window.clearTimeout(timer);
+      const data = await res.json().catch(() => null);
+      // formsubmit은 success를 문자열 "true"/"false"로 반환한다
+      const ok = res.ok && (data?.success === "true" || data?.success === true);
+      if (!ok) throw new Error(data?.message || `HTTP ${res.status}`);
       setRefCode(
         `HK-REF-${Math.random().toString(36).slice(2, 6).toUpperCase()}-${new Date().getFullYear()}`
       );
       setPhase("done");
       toast({ title: t.drawer.toastTitle, description: t.drawer.toastBody });
-    }, 1100);
+    } catch {
+      setPhase("form");
+      toast({ title: t.drawer.toastErrorTitle, description: t.drawer.toastErrorBody });
+    }
   };
 
   const reset = () => {
@@ -103,6 +133,16 @@ export function InquiryDrawerProvider({ children }: { children: React.ReactNode 
           ref={contentRef}
           className="mx-auto max-h-[92vh] w-full max-w-[560px] overflow-y-auto rounded-t-2xl border-white/10 bg-[#0D0F16]/95 backdrop-blur-2xl hk-scroll sm:rounded-t-2xl"
         >
+          <button
+            onClick={() => {
+              setOpenState(false);
+              if (phase === "done") reset();
+            }}
+            aria-label={t.drawer.close}
+            className="absolute right-4 top-4 z-10 flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-zinc-400 transition-colors hover:border-white/20 hover:text-white"
+          >
+            <X className="h-4 w-4" />
+          </button>
           <DrawerHeader className="pb-2 pt-6 text-left">
             <DrawerTitle className="flex items-center gap-2.5 font-sans text-lg font-semibold tracking-tight text-white">
               <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/[0.05]">
